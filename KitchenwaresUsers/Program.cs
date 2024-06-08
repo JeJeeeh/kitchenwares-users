@@ -21,6 +21,7 @@ builder.Services.Configure<DatabaseSettings>(options =>
 });
 
 builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddSingleton<IRabbitMqService, RabbitMqService>();
 
 builder.Services.AddHostedService<RabbitMqHostedService>();
 
