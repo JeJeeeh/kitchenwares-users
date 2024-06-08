@@ -7,6 +7,7 @@ namespace KitchenwaresUsers.Services;
 public interface IUserService
 {
     Task<UserModel?> FindOne(string username);
+    Task Create(AuthUserRequest authUser);
     Task Update(string username, UserModel newUser);
     Task Delete(string username);
 }
@@ -29,10 +30,22 @@ public class UserService : IUserService
 
     public async Task<UserModel?> FindOne(string username) =>
         await _users.Find(x => x.Username == username).FirstOrDefaultAsync();
+
+    public async Task Create(AuthUserRequest authUser)
+    {
+        var newUser = new UserModel
+        {
+            Username = authUser.Username,
+            Email = authUser.Email,
+            PhoneNumber = authUser.PhoneNumber,
+            StoreName = authUser.StoreName
+        };
+        await _users.InsertOneAsync(newUser);
+    }
     
     public async Task Update(string username, UserModel newUser)
     {
-        await _users.ReplaceOneAsync(x => x.Username == newUser.Username, newUser);
+        await _users.ReplaceOneAsync(x => x.Username == username, newUser);
     }
 
     public async Task Delete(string username)

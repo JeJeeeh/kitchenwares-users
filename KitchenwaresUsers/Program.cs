@@ -1,5 +1,8 @@
+using System.Text;
 using KitchenwaresUsers.Models;
 using KitchenwaresUsers.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +22,31 @@ builder.Services.Configure<DatabaseSettings>(options =>
 
 builder.Services.AddSingleton<IUserService, UserService>();
 
+builder.Services.AddHostedService<RabbitMqHostedService>();
+
 builder.Services.AddControllers();
+
+var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ??
+                builder.Configuration.GetSection("DevelopmentJwt")["Issuer"];
+var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ??
+                  builder.Configuration.GetSection("DevelopmentJwt")["Audience"];
+var jwtSecretKey = Environment.GetEnvironmentVariable("Jwt__SecretKey") ??
+                   builder.Configuration.GetSection("DevelopmentJwt")["SecretKey"];
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey!))
+        };
+    });
+
 
 var app = builder.Build();
 
