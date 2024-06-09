@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using KitchenwaresUsers.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -37,8 +38,9 @@ public class RabbitMqService(IUserService userService) : IRabbitMqService
             
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-
-            var newUser = JsonSerializer.Deserialize<AuthUserRequest>(message);
+            var newUserJson = RemoveUnicodeEscapeSequences(message);
+            var newUser = JsonSerializer.Deserialize<AuthUserRequest>(newUserJson);
+            
             await userService.Create(newUser!);
             
         };
@@ -66,5 +68,12 @@ public class RabbitMqService(IUserService userService) : IRabbitMqService
         var body = Encoding.UTF8.GetBytes(json);
         
         channel.BasicPublish(exchange: "", routingKey: "users", body: body);
+    }
+    
+    private static string RemoveUnicodeEscapeSequences(string input)
+    {
+        var trimmedInput = input.Trim('"');
+        var cleanedString = trimmedInput.Replace("\\u0022", "\"");
+        return cleanedString;
     }
 }

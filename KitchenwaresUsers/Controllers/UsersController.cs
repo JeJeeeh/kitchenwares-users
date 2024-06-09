@@ -44,9 +44,7 @@ public class UsersController(IUserService userService, IRabbitMqService rabbitMq
             Username = username,
             StoreName = request.StoreName
         };
-        var jsonRequest = JsonSerializer.Serialize(authRequest);
-        var body = Encoding.UTF8.GetBytes(jsonRequest);
-        rabbitMqService.SendMessage(body);
+        rabbitMqService.SendMessage(authRequest);
         
         return NoContent();
     }
@@ -69,9 +67,7 @@ public class UsersController(IUserService userService, IRabbitMqService rabbitMq
             Mode = "DELETE",
             Username = username
         };
-        var jsonRequest = JsonSerializer.Serialize(authRequest);
-        var body = Encoding.UTF8.GetBytes(jsonRequest);
-        rabbitMqService.SendMessage(body);
+        rabbitMqService.SendMessage(authRequest);
         
         return NoContent();
     }
