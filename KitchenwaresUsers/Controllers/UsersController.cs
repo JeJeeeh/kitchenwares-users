@@ -11,6 +11,13 @@ namespace KitchenwaresUsers.Controllers;
 [Route("/api/[controller]")]
 public class UsersController(IUserService userService, RabbitMqService rabbitMqService) : ControllerBase
 {
+    [HttpGet]
+    public async Task<ActionResult<UserModel>> FindAll()
+    {
+        var users = await userService.FindAll();
+        return Ok(users);
+    }
+    
     [Authorize(Roles = "User")]
     [HttpPut]
     public async Task<IActionResult> Update(UserRequest request)
