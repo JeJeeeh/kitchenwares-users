@@ -9,7 +9,7 @@ namespace KitchenwaresUsers.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-public class UsersController(IUserService userService, RabbitMqService rabbitMqService) : ControllerBase
+public class UsersController(IUserService userService, IRabbitMqService rabbitMqService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<UserModel>> FindAll()
